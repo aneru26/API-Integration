@@ -1,6 +1,29 @@
 <?php
 session_start();
 
+use Middleware\MiddlewareManager;
+use Middleware\AuthMiddleware;
+use Middleware\LoggerMiddleware;
+
+require_once __DIR__ . '/middleware/MiddlewareManager.php';
+require_once __DIR__ . '/middleware/AuthMiddleware.php';
+require_once __DIR__ . '/middleware/LoggerMiddleware.php';
+
+// Headers
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Initialize MiddlewareManager
+$middlewareManager = new MiddlewareManager();
+$middlewareManager->addMiddleware(new LoggerMiddleware());
+$middlewareManager->addMiddleware(new AuthMiddleware());
+
+// Handle request through middleware
+$middlewareManager->handle($_SERVER, function ($request) {
+    require_once __DIR__ . '/api.php'; // Main API routes
+});
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
